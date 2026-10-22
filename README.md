@@ -1,7 +1,7 @@
-# BSAD 6153 Project: &lt;your project name&gt;
+# BSAD 6153 Project: League of Legends predictor
 
-**Student:** &lt;your name&gt;
-**My decision:** &lt;the decision you make regularly that this project improves&gt;
+**Student:** Fernando Rubio Garcia
+**My decision:** Which champion I will play in my next League of Legends game, based on my previous trend
 **Website:** &lt;your domain, from Week 4&gt;
 
 This repository is one complete AI system, built over eight weeks: a real API, synced on a schedule into a
