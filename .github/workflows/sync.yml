@@ -1,0 +1,50 @@
+# Daily sync: GitHub runs ingest/sync.py on its own servers, so your laptop can be off.
+#
+# Secrets (Settings > Secrets and variables > Actions > New repository secret):
+#   DATABASE_URL   Supabase *Session pooler* connection string, owner role.
+#                  GitHub's runners can't reach Supabase's direct connection.
+#   RIOT_API_KEY   Your approved Riot key.
+# They reach the job only as environment variables below. They never appear in this file,
+# and GitHub masks them as *** if anything tries to print them.
+
+name: Daily sync
+
+on:
+  schedule:
+    # Once a day at 09:17 UTC (about 3-4 a.m. in Kansas). Times are always UTC.
+    # Why daily: the ladder changes daily, and a personal key allows ~3,000 calls an hour,
+    # so one ~50-minute run a day collects a useful slice without hitting GitHub's limits.
+    # Off the hour on purpose: GitHub delays more runs at :00. Runs only from the default branch.
+    - cron: "17 9 * * *"
+  workflow_dispatch:          # the "Run workflow" button, for manual runs and break-it tests
+    inputs:
+      max_calls:
+        description: "API call budget (2400 = full run, ~50 min; 150 = quick test)"
+        default: "2400"
+
+concurrency:
+  group: sync                 # never two syncs at once
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90       # GitHub would stop it at 6 hours; we stop much earlier
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Run the sync
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
+          SYNC_TRIGGER: ${{ github.event_name == 'schedule' && 'schedule' || 'manual' }}
+          SYNC_MAX_CALLS: ${{ inputs.max_calls || '2400' }}
+        # sync.py exits with code 1 on failure: the run turns red and GitHub emails you.
+        run: python ingest/sync.py

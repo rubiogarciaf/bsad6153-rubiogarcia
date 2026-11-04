@@ -1,7 +1,10 @@
-# BSAD 6153 Project: League of Legends predictor
+# BSAD 6153 Project: League of Legends high-elo champion tracker (instructor reference build)
 
 **Student:** Fernando Rubio Garcia
-**My decision:** Which champion I will play in my next League of Legends game, based on my previous trend
+**My decision:** Which champion I should play next, based on what is winning right now in high-elo
+North America (Diamond I and above, ranked solo queue)
+**Data:** Riot Games API with an approved key, plus Data Dragon. Students: Riot is allowed only if you
+already hold an approved key; otherwise pick from the Milestone 1 API menu.
 **Website:** &lt;your domain, from Week 4&gt;
 
 This repository is one complete AI system, built over eight weeks: a real API, synced on a schedule into a
@@ -101,8 +104,33 @@ every command before you approve it, and keep auto-approve off.
 
 ## How to run this project
 
-<!-- Keep this current: how to run the sync, the website, and the evaluations. -->
+Activate `.venv` first. Put `RIOT_API_KEY`, `DATABASE_URL`, and `APP_DATABASE_URL` in `.env`.
+
+| Step | Command | What it does |
+|---|---|---|
+| Create tables | Paste `db/schema.sql`, then `db/roles.sql`, into the Supabase SQL editor | Seven tables and the read-only role; safe to rerun |
+| Sync (manual) | `python ingest/sync.py --max-calls 150` | A small real run, about 3 minutes. Drop the flag for a full run (~50 minutes). |
+| Sync (daily) | `.github/workflows/sync.yml` | GitHub runs it at 09:17 UTC; the Actions tab also has a **Run workflow** button |
+| Status | `python scripts/status.py` | Last successful update, runs in the last 7 days, what changed |
+| Golden questions | `python evals/check_reference.py --save` | Runs every reference query as `app_reader`, saves the answers, reports what changed |
+| Check the role | `python scripts/check_reader.py` | As `app_reader`: SELECT works, INSERT and DELETE are denied |
+| Business questions | `db/queries.sql` | Five queries answering questions from the decision |
+| Quality checks | `db/quality_checks.sql` | Nulls, duplicates, anomalies, queue health, coverage, patch drift |
+| Offline tests | `python -m unittest discover tests` | Rate limits, retries, budget, and the match filter, with no network |
+
+**Sync frequency: once a day.** The ladder changes daily, and a personal key allows about 3,000 calls an hour
+(100 per 2 minutes). A 2,400-call run takes about 50 minutes: the whole ladder (~47 calls), new match IDs for
+about 950 players (highest tier first, then whoever was checked longest ago), and about 1,400 match details.
+Anything the budget can't reach waits in `match_queue` for the next run.
+
+**Worst-case freshness:** about 26 hours (a day between runs, plus a 50-minute run, plus GitHub's schedule delay).
+If a run fails, the next one catches up from each player's own watermark, so a failed day delays data but
+doesn't lose it.
+
+Docs: `docs/data_dictionary.md`, `docs/schema.md`, `docs/data_quality.md`, `docs/sync_tests.md`.
 
 ## Credits
 
-<!-- Your data API's required attribution, plus any open-source code or samples you used. -->
+Data from the Riot Games API and Data Dragon. This project isn't endorsed by Riot Games and doesn't reflect the
+views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties.
+Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc.
