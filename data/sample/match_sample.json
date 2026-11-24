@@ -1,0 +1,242 @@
+{
+ "_note": "Trimmed from one real match-v5 response: 14 of ~156 participant fields kept. PUUIDs replaced with placeholders; Riot IDs, names, and summoner IDs removed.",
+ "metadata": {
+  "matchId": "NA1_5672929226",
+  "participants": [
+   "player-1",
+   "player-2",
+   "player-3",
+   "player-4",
+   "player-5",
+   "player-6",
+   "player-7",
+   "player-8",
+   "player-9",
+   "player-10"
+  ]
+ },
+ "info": {
+  "gameVersion": "16.21.834.2754",
+  "queueId": 420,
+  "gameStartTimestamp": 1793739245907,
+  "gameDuration": 1226,
+  "endOfGameResult": "GameComplete",
+  "platformId": "NA1",
+  "teams": [
+   {
+    "teamId": 100,
+    "win": false,
+    "bans": [
+     {
+      "championId": 200,
+      "pickTurn": 1
+     },
+     {
+      "championId": 120,
+      "pickTurn": 2
+     },
+     {
+      "championId": 92,
+      "pickTurn": 3
+     },
+     {
+      "championId": 107,
+      "pickTurn": 4
+     },
+     {
+      "championId": 134,
+      "pickTurn": 5
+     }
+    ]
+   },
+   {
+    "teamId": 200,
+    "win": true,
+    "bans": [
+     {
+      "championId": 200,
+      "pickTurn": 6
+     },
+     {
+      "championId": 887,
+      "pickTurn": 7
+     },
+     {
+      "championId": 78,
+      "pickTurn": 8
+     },
+     {
+      "championId": 134,
+      "pickTurn": 9
+     },
+     {
+      "championId": 107,
+      "pickTurn": 10
+     }
+    ]
+   }
+  ],
+  "participants": [
+   {
+    "puuid": "player-1",
+    "teamId": 100,
+    "teamPosition": "TOP",
+    "championId": 799,
+    "championName": "Ambessa",
+    "win": false,
+    "kills": 2,
+    "deaths": 4,
+    "assists": 2,
+    "champLevel": 13,
+    "goldEarned": 8375,
+    "totalMinionsKilled": 192,
+    "neutralMinionsKilled": 0,
+    "visionScore": 32
+   },
+   {
+    "puuid": "player-2",
+    "teamId": 100,
+    "teamPosition": "JUNGLE",
+    "championId": 163,
+    "championName": "Taliyah",
+    "win": false,
+    "kills": 3,
+    "deaths": 0,
+    "assists": 1,
+    "champLevel": 12,
+    "goldEarned": 8679,
+    "totalMinionsKilled": 22,
+    "neutralMinionsKilled": 147,
+    "visionScore": 33
+   },
+   {
+    "puuid": "player-3",
+    "teamId": 100,
+    "teamPosition": "MIDDLE",
+    "championId": 3,
+    "championName": "Galio",
+    "win": false,
+    "kills": 0,
+    "deaths": 3,
+    "assists": 1,
+    "champLevel": 12,
+    "goldEarned": 6298,
+    "totalMinionsKilled": 174,
+    "neutralMinionsKilled": 0,
+    "visionScore": 9
+   },
+   {
+    "puuid": "player-4",
+    "teamId": 100,
+    "teamPosition": "BOTTOM",
+    "championId": 29,
+    "championName": "Twitch",
+    "win": false,
+    "kills": 2,
+    "deaths": 4,
+    "assists": 2,
+    "champLevel": 11,
+    "goldEarned": 7725,
+    "totalMinionsKilled": 154,
+    "neutralMinionsKilled": 0,
+    "visionScore": 9
+   },
+   {
+    "puuid": "player-5",
+    "teamId": 100,
+    "teamPosition": "UTILITY",
+    "championId": 7,
+    "championName": "Leblanc",
+    "win": false,
+    "kills": 0,
+    "deaths": 3,
+    "assists": 1,
+    "champLevel": 9,
+    "goldEarned": 4707,
+    "totalMinionsKilled": 27,
+    "neutralMinionsKilled": 0,
+    "visionScore": 59
+   },
+   {
+    "puuid": "player-6",
+    "teamId": 200,
+    "teamPosition": "TOP",
+    "championId": 164,
+    "championName": "Camille",
+    "win": true,
+    "kills": 2,
+    "deaths": 3,
+    "assists": 3,
+    "champLevel": 14,
+    "goldEarned": 7119,
+    "totalMinionsKilled": 143,
+    "neutralMinionsKilled": 4,
+    "visionScore": 16
+   },
+   {
+    "puuid": "player-7",
+    "teamId": 200,
+    "teamPosition": "JUNGLE",
+    "championId": 36,
+    "championName": "DrMundo",
+    "win": true,
+    "kills": 1,
+    "deaths": 1,
+    "assists": 3,
+    "champLevel": 12,
+    "goldEarned": 7800,
+    "totalMinionsKilled": 8,
+    "neutralMinionsKilled": 158,
+    "visionScore": 18
+   },
+   {
+    "puuid": "player-8",
+    "teamId": 200,
+    "teamPosition": "MIDDLE",
+    "championId": 127,
+    "championName": "Lissandra",
+    "win": true,
+    "kills": 3,
+    "deaths": 0,
+    "assists": 1,
+    "champLevel": 13,
+    "goldEarned": 8197,
+    "totalMinionsKilled": 198,
+    "neutralMinionsKilled": 0,
+    "visionScore": 15
+   },
+   {
+    "puuid": "player-9",
+    "teamId": 200,
+    "teamPosition": "BOTTOM",
+    "championId": 429,
+    "championName": "Kalista",
+    "win": true,
+    "kills": 6,
+    "deaths": 1,
+    "assists": 4,
+    "champLevel": 12,
+    "goldEarned": 10896,
+    "totalMinionsKilled": 222,
+    "neutralMinionsKilled": 7,
+    "visionScore": 25
+   },
+   {
+    "puuid": "player-10",
+    "teamId": 200,
+    "teamPosition": "UTILITY",
+    "championId": 412,
+    "championName": "Thresh",
+    "win": true,
+    "kills": 2,
+    "deaths": 2,
+    "assists": 8,
+    "champLevel": 10,
+    "goldEarned": 6492,
+    "totalMinionsKilled": 25,
+    "neutralMinionsKilled": 0,
+    "visionScore": 69
+   }
+  ]
+ }
+}
