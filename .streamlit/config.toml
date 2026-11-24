@@ -1,0 +1,12 @@
+[theme] # Set the dashboard's shared visual defaults.
+base = "light" # Use readable light widgets, tables, and chart surroundings.
+primaryColor = "#087f8c" # Use teal for active controls and interactive accents.
+backgroundColor = "#f3f7fb" # Give the main page a pale-blue background.
+secondaryBackgroundColor = "#e7eff6" # Distinguish inputs and secondary surfaces from the page.
+textColor = "#17324d" # Use dark-blue text with strong contrast against the light backgrounds.
+
+[client] # Configure what error information public visitors can see.
+showErrorDetails = "none" # Hide detailed Python exception output, in addition to the app's friendly exception handlers.
+
+[browser] # Configure browser-related Streamlit behavior.
+gatherUsageStats = false # Disable Streamlit usage-statistics collection for this application.
