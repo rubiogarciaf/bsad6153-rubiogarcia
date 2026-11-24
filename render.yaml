@@ -5,6 +5,7 @@ services:
     name: league-lens
     runtime: python
     plan: free
+    region: ohio
     buildCommand: python -m pip install -r requirements.txt
     startCommand: python -m streamlit run app/streamlit_app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
     healthCheckPath: /_stcore/health

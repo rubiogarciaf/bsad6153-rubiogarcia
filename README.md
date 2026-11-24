@@ -19,3 +19,6 @@ Use Render New > Blueprint with this branch and render.yaml. The Blueprint uses 
     python -m unittest discover -s tests -p test_streamlit_app.py
 
 Data and champion artwork: Riot Games API / Data Dragon. Independent educational fan project, not endorsed by Riot Games.
+
+Live website: [League Lens](https://league-lens.onrender.com). Hosted on Render Free in Ohio.
+

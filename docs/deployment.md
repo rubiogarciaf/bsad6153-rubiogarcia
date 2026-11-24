@@ -60,9 +60,26 @@ use the repository's default branch, which may differ from the web service branc
 
 ## Current handoff status
 
-Local deployment configuration is prepared. Remote publication and the public
-URL still require confirmation after the GitHub account and Render connection
-are available. This document is not evidence of a completed deployment.
+The dashboard-only release is published on GitHub at
+[`release/league-lens-2026-11-24`](https://github.com/rubiogarciaf/bsad6153-rubiogarcia/tree/release/league-lens-2026-11-24),
+initial application commit `2f99608b7912bb8a180af740906acbbf13579152`.
+The working branch and its uncommitted coursework changes were preserved.
+
+Render service `league-lens` was created in My Workspace using the Free plan in
+Ohio. [Render dashboard](https://dashboard.render.com/web/srv-dc31df5g1s2s73bgevgg).
+Its assigned URL is [League Lens](https://league-lens.onrender.com).
+Render reported the deployment with database access **Live** on November 24,
+2026. The existing read-only connection was stored in Render's private environment
+settings with explicit authorization. The public dashboard was verified in a
+browser: the November 24 snapshot, patch 16.23, charts, and 20 Most picked rows
+loaded successfully. The public health endpoint returned HTTP 200 with `ok`.
+The service was created directly through Render's service API; `render.yaml`
+provides the equivalent Blueprint configuration for future setup. The running
+service currently uses Render's default process health check.
+
+Local verification: seven reader-boundary tests passed; all five Streamlit
+views completed without errors against the configured read-only database;
+the local `/_stcore/health` endpoint returned HTTP 200 with `ok`.
 
 Official references: [Render Blueprints](https://render.com/docs/blueprint-spec),
 [Python versions](https://render.com/docs/python-version),
