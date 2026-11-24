@@ -1,64 +1,167 @@
+# HOW TO READ THIS FILE
+# GitHub reads workflow files from .github/workflows in the repository.
+# YAML uses indentation to show which settings belong together; keep the spaces.
+# A line beginning with # is an explanation and is ignored by GitHub.
+# A colon introduces a setting or a group; a leading dash introduces a list item.
+# Quotes keep a value as text. Blank lines only separate sections for readability.
+# Expressions inside ${{ ... }} are evaluated by GitHub before a step runs.
+#
+# WHAT HAPPENS
+# Start a temporary Linux computer -> download this repository -> prepare Python
+# -> install packages -> run offline tests -> collect/load Riot data -> save report.
+# The actual collection rules and limits live in ingest/sync.py and ingest/load.py.
+#
+# This is the display name shown in the repository's Actions tab.
 name: Daily Riot match collection
 
+# "on" lists the events that can start this workflow.
 on:
+  # "schedule" enables automatic runs, independent of your computer.
+  # GitHub uses the workflow on the default branch (main) for scheduled runs.
   schedule:
-    # 3:17 a.m. CST / 4:17 a.m. CDT. Scheduled execution can be delayed by GitHub.
+    # This list has one cron expression with five fields:
+    # minute=17, hour=9, day-of-month=*, month=*, day-of-week=*.
+    # Each * means every allowed value: run every day at 09:17 UTC.
+    # That is 3:17 a.m. CST or 4:17 a.m. CDT in America/Chicago.
+    # This is a start schedule, not a run duration; GitHub can delay a busy queue.
     - cron: '17 9 * * *'
+
+  # "workflow_dispatch" adds the manual Run workflow button and supports API/CLI starts.
   workflow_dispatch:
+    # "inputs" defines the form fields available for a manual start.
     inputs:
+      # "profile" is our field's identifier; the collection step reads inputs.profile.
       profile:
+        # Help text displayed beside the field in GitHub.
         description: 'Collection size: smoke for a short connection/load check'
+        # "choice" displays a dropdown rather than allowing arbitrary text.
         type: choice
+        # Require a value when manually starting the workflow.
         required: true
+        # Preselect smoke for MANUAL runs only; automatic runs use daily below.
         default: smoke
+        # The dropdown permits exactly these two values.
         options:
+          # Short test: at most 80 Riot calls, 20 player histories, 40 detail downloads.
           - smoke
+          # Daily batch: at most 1200 calls, 300 player histories, 550 detail downloads.
+          # These caps are defined in ingest/sync.py; they are not guaranteed row counts.
           - daily
 
+# Control the automatic GITHUB_TOKEN used by GitHub's own Actions operations.
+# This token is separate from our Riot API key and Supabase database credential.
 permissions:
+  # Allow reading repository contents for checkout. Other token permissions are unset.
+  # This does NOT make the Supabase connection read-only; its credential permits loading.
   contents: read
 
+# Prevent two copies of this workflow from collecting/writing simultaneously.
 concurrency:
+  # All branches, manual starts, and scheduled starts share this repository-local group.
   group: riot-match-collection
+  # Let an active run finish instead of canceling it when another run is requested.
+  # A waiting run stays pending; by default a newer pending run can replace an older one.
   cancel-in-progress: false
 
+# "jobs" contains the work to perform. This workflow has one job.
 jobs:
+  # "collect" is the internal job identifier shown in the run details.
   collect:
+    # Request a fresh GitHub-hosted computer running the latest supported Ubuntu image.
+    # Your laptop does not execute this job. The runner is temporary.
     runs-on: ubuntu-latest
+    # Stop the job if it exceeds 45 minutes. This is a ceiling, not a requested duration.
     timeout-minutes: 45
+
+    # Environment variables here are available to every step in this job.
     env:
+      # Make Python print logs promptly instead of holding them in an output buffer.
       PYTHONUNBUFFERED: '1'
+      # Avoid creating Python .pyc bytecode files on this temporary runner.
       PYTHONDONTWRITEBYTECODE: '1'
+
+    # Steps execute in order. Unless a step has another condition, failure skips later steps.
     steps:
+      # "uses" runs a reusable action: owner/repository@version.
+      # checkout@v4 downloads the repository at the commit selected for this run.
       - uses: actions/checkout@v4
+        # "with" supplies settings to that action.
         with:
+          # Do not leave GitHub's checkout token in the runner's Git configuration.
           persist-credentials: false
 
+      # Install/select Python using GitHub's maintained setup-python action, version v5.
       - uses: actions/setup-python@v5
+        # These settings belong only to setup-python.
         with:
+          # Use Python 3.12, matching the local project.
           python-version: '3.12'
+          # Reuse cached pip package downloads when possible to speed up installation.
+          # This caches packages, not API responses, raw matches, or credentials.
           cache: pip
+          # Use this dependency file to determine when the package cache needs changing.
           cache-dependency-path: requirements-ingest.txt
 
+      # A readable label for this shell-command step.
       - name: Install collector dependencies
+        # "run" executes a command on the runner.
+        # -m pip uses this Python's package installer; -r reads the pinned package list.
+        # Only requests, psycopg, and python-dotenv are needed for this collector.
         run: python -m pip install -r requirements-ingest.txt
 
+      # Run validation tests before making external API calls or database writes.
       - name: Test collection rules without credentials
+        # unittest is Python's test runner; discover searches for test modules.
+        # -s tests chooses the folder; -p chooses test_*.py; -v prints individual results.
+        # These tests use sample/mocked data. Credentials are not supplied to this step.
         run: python -m unittest discover -s tests -p 'test_*.py' -v
 
+      # This is the step that contacts Riot and writes accepted records to Supabase.
       - name: Collect and load new matches
+        # These variables are supplied only to this step and its child processes.
         env:
+          # Read the encrypted repository secret holding the Supabase connection.
+          # Its actual value is never stored in this YAML file.
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # Read the encrypted repository secret holding the approved Riot API key.
           RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
+          # For a manual run, use the selected dropdown value.
+          # || means "otherwise": scheduled events have no profile input, so use daily.
+          # The quoted word 'daily' is a fallback value, not a second schedule.
           SYNC_PROFILE: ${{ inputs.profile || 'daily' }}
+          # Tell PostgreSQL's connection library to require an encrypted TLS connection.
+          # The saved database secret also explicitly requires TLS.
           PGSSLMODE: require
+        # sync.py selects the profile, creates a fresh run directory, and invokes load.py.
+        # Each run observes games that STARTED in the preceding fixed 48-hour window.
+        # That window is source coverage, not how long this process stays running.
+        # load.py first stores ladder/reference rows, then discovers and downloads games.
+        # Complete stored games are skipped. New matches and ten participants commit together.
+        # Matches load after each 50 downloaded details, and any remaining details at the end.
+        # Thus a 40-detail smoke test usually inserts its matches near the end of collection.
+        # Changed champion references refresh; historic match rows remain unchanged.
+        # Missing secrets, API errors, and failed integrity checks make the step fail.
         run: python ingest/sync.py
 
+      # Preserve an aggregate JSON report so you can inspect a completed run.
       - name: Save aggregate report
+        # Attempt this step even when a previous step failed.
+        # A forcibly terminated runner may not get a chance to finish this upload.
         if: always()
+        # upload-artifact@v4 attaches a downloadable file to this Actions run.
         uses: actions/upload-artifact@v4
+        # These settings belong only to the artifact-upload action.
         with:
+          # github.run_id identifies this workflow run; run_attempt increases on reruns.
+          # Including both makes the artifact name unique across runs and retry attempts.
           name: riot-sync-report-${{ github.run_id }}-${{ github.run_attempt }}
+          # Upload ONLY the aggregate report at the path created by sync.py.
+          # The raw game files, manifest, player IDs, and secrets are not uploaded.
+          # Forward slashes separate folders; the runner uses Linux.
           path: data/raw/sync_${{ github.run_id }}_${{ github.run_attempt }}/sync_report.json
+          # If failure prevented a report from being written, show an upload warning.
+          # This does not turn a failed collector step into a successful run.
           if-no-files-found: warn
+          # Keep this downloadable artifact for 14 days.
+          # This does not delete Supabase rows or determine how long collection runs.
           retention-days: 14
